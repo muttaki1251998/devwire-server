@@ -1,12 +1,13 @@
 // api/authRoutes/register.js
 require('dotenv').config();
 const express = require('express');
+const passport = require('passport');
 const router = express.Router();
 const User = require('../../models/user')
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-router.post('/register', async (req, res) => {
+router.post('/', async (req, res) => {
   const { username, email, password } = req.body;
   try {
     // Check if user already exists
@@ -46,5 +47,15 @@ router.post('/register', async (req, res) => {
     res.status(500).send('Server error');
   }
 });
+
+// Signup and login with google
+router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+router.get('/google/callback', 
+  passport.authenticate('google', { failureRedirect: '/login' }),
+  (req, res) => {
+    // Successful authentication, redirect home.
+    res.redirect('/');
+  });
 
 module.exports = router;
